@@ -22,8 +22,10 @@ public class TerminalHandler {
     }
 
     public TerminalHandler() throws IOException {
+
         while (true) {
-            
+            File curDir = new File(".");
+            getAllFiles(curDir);
             try (Terminal terminal = TerminalBuilder.builder()
                     .name("File Manager")
                     .jna(true)
@@ -63,7 +65,24 @@ public class TerminalHandler {
         }
 
     }
+    static void getAllFiles(File curDir) {
 
+        File[] filesList = curDir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File current, String name){
+                return new File(current, name).isFile();
+            } 
+        });
+        File[] dirList = curDir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File current, String name) {
+              return new File(current, name).isDirectory();
+            }
+        });
+        for (File d : dirList){System.out.println("Dir: "+d.getName());}
+        for (File f : filesList) {System.out.println("File: " + f.getName());}
+
+    }
 
 
 }
