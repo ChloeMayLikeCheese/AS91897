@@ -1,0 +1,24 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+   implementation 'org.jline:jline:3.30.0'
+   implementation 'org.jline:jansi:3.30.3'
+}
+
+task run(type: JavaExec) {
+    mainClass = 'com.AS91897.Main'
+    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
+}
+shadowJar {
+    manifest {
+        attributes 'Main-Class': 'com.AS91897.Main'
+    }
+}
