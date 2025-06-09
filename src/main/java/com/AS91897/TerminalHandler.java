@@ -117,7 +117,23 @@ public class TerminalHandler {
                                     selectedIndex = 0;
                                 }
                                 break;
+                            case RIGHT:
+                            case ENTER:
+                            try {
+                                File selectedFile = fileAndDirList[selectedIndex];
+                                if (selectedFile != null) {
+                                    if (selectedFile.isDirectory()) {
+                                        curDir = selectedFile;
+                                        updateFilesAndDirs();
+                                        selectedIndex = 0;
+                                    }
+                                }
+                            } catch (Exception e) {
+                                //Man fuck if i know im tired as hell
+                            }
 
+
+                                break;
                             case EXIT:
                                 isReading = false;
                                 break;
