@@ -15,7 +15,7 @@
 *.dmg
 *.gz
 *.iso
-.jar
+*.jar
 *.rar
 *.tar
 *.zip
@@ -44,8 +44,8 @@ Thumbs.db
 # Build output directies
 /target
 */target
-# /build
-# */build
+/build
+*/build
 
 # IntelliJ specific files/directories
 out
