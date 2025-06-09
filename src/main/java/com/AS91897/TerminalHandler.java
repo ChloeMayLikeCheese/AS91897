@@ -13,7 +13,7 @@ import org.jline.utils.InfoCmp.Capability;
 public class TerminalHandler {
     Size terminalSize;
     File curDir;
-    // File parentDir = curDir.getParentFile();
+
     File[] dirList;
     File[] fileList;
     File[] fileAndDirList;
@@ -32,7 +32,7 @@ public class TerminalHandler {
         curDir = new File("./").getAbsoluteFile();
         updateFilesAndDirs();
         while (true) {
-            // updateFilesAndDirs();
+
             int selectedIndex = 0;
             int viewOffset = 0;
 
@@ -76,11 +76,7 @@ public class TerminalHandler {
 
                     int endIndex = Math.min(fileAndDirList.length, viewOffset + listHeight);
 
-                    // terminal.writer().println("Directories:");
                     for (int i = viewOffset; i < endIndex; i++) {
-                        // if (i == fileList.length) {
-                        // terminal.writer().println("Files:");
-                        // }
                         if (i == selectedIndex) {
                             terminal.writer().print("\u001B[31m" + ">" + "\u001B[0m" + "\u001B[47m");
                         }
@@ -157,7 +153,7 @@ public class TerminalHandler {
 
     public void terminalSizeCallBack(Terminal terminal) {
         terminal.puts(Capability.clear_screen);
-        // terminal.writer().println("DEBUG: Screen cleared(Screen size update)");
+
     }
 
     public void updateFilesAndDirs() {
