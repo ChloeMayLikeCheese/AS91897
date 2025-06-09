@@ -81,9 +81,19 @@ public class TerminalHandler {
                             terminal.writer().print("\u001B[31m" + ">" + "\u001B[0m" + "\u001B[47m");
                         }
                         if (i >= dirList.length) {
-                            terminal.writer().println("\u001B[33m" + fileAndDirList[i].getName() + "\u001B[0m");
+                            if (i == selectedIndex) {
+                                terminal.writer().println("\u001B[40m" + fileAndDirList[i].getName() + "\u001B[0m");
+                            }else{
+                                terminal.writer().println("\u001B[33m" + fileAndDirList[i].getName() + "\u001B[0m");
+                            }
+                            
                         } else {
-                            terminal.writer().println("\u001B[36m" + fileAndDirList[i].getName() + "/ " + "\u001B[0m");
+                            if (i == selectedIndex) {
+                                terminal.writer().println("\u001B[40m" + fileAndDirList[i].getName() + "/ " + "\u001B[0m");
+                            } else {
+                                terminal.writer().println("\u001B[36m" + fileAndDirList[i].getName() + "/ " + "\u001B[0m");
+                            }
+                           
                         }
                     }
 
@@ -115,19 +125,18 @@ public class TerminalHandler {
                                 break;
                             case RIGHT:
                             case ENTER:
-                            try {
-                                File selectedFile = fileAndDirList[selectedIndex];
-                                if (selectedFile != null) {
-                                    if (selectedFile.isDirectory()) {
-                                        curDir = selectedFile;
-                                        updateFilesAndDirs();
-                                        selectedIndex = 0;
+                                try {
+                                    File selectedFile = fileAndDirList[selectedIndex];
+                                    if (selectedFile != null) {
+                                        if (selectedFile.isDirectory()) {
+                                            curDir = selectedFile;
+                                            updateFilesAndDirs();
+                                            selectedIndex = 0;
+                                        }
                                     }
+                                } catch (Exception e) {
+                                    
                                 }
-                            } catch (Exception e) {
-                                //Man fuck if i know im tired as hell
-                            }
-
 
                                 break;
                             case EXIT:
