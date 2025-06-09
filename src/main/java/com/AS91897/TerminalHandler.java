@@ -34,6 +34,7 @@ public class TerminalHandler {
         while (true) {
 
             int selectedIndex = 0;
+            int previousSelectedIndex = 0;
             int viewOffset = 0;
 
             try (Terminal terminal = TerminalBuilder.builder()
@@ -83,17 +84,19 @@ public class TerminalHandler {
                         if (i >= dirList.length) {
                             if (i == selectedIndex) {
                                 terminal.writer().println("\u001B[40m" + fileAndDirList[i].getName() + "\u001B[0m");
-                            }else{
+                            } else {
                                 terminal.writer().println("\u001B[33m" + fileAndDirList[i].getName() + "\u001B[0m");
                             }
-                            
+
                         } else {
                             if (i == selectedIndex) {
-                                terminal.writer().println("\u001B[40m" + fileAndDirList[i].getName() + "/ " + "\u001B[0m");
+                                terminal.writer()
+                                        .println("\u001B[40m" + fileAndDirList[i].getName() + "/ " + "\u001B[0m");
                             } else {
-                                terminal.writer().println("\u001B[36m" + fileAndDirList[i].getName() + "/ " + "\u001B[0m");
+                                terminal.writer()
+                                        .println("\u001B[36m" + fileAndDirList[i].getName() + "/ " + "\u001B[0m");
                             }
-                           
+
                         }
                     }
 
@@ -116,27 +119,29 @@ public class TerminalHandler {
 
                                 break;
                             case LEFT:
+                                previousSelectedIndex = selectedIndex;
                                 File parentDir = curDir.getParentFile();
                                 if (parentDir != null) {
                                     curDir = curDir.getParentFile();
                                     updateFilesAndDirs();
-                                    selectedIndex = 0;
+                                    
                                 }
                                 break;
                             case RIGHT:
                             case ENTER:
-                                try {
+                            if (fileAndDirList.length != 0) {
+                                if (fileAndDirList[selectedIndex] != null) {
                                     File selectedFile = fileAndDirList[selectedIndex];
                                     if (selectedFile != null) {
                                         if (selectedFile.isDirectory()) {
                                             curDir = selectedFile;
                                             updateFilesAndDirs();
-                                            selectedIndex = 0;
+                                            selectedIndex = previousSelectedIndex;
                                         }
                                     }
-                                } catch (Exception e) {
-                                    
                                 }
+                            }
+
 
                                 break;
                             case EXIT:
