@@ -34,6 +34,7 @@ public class TerminalHandler {
         while (true) {
             // updateFilesAndDirs();
             int selectedIndex = 0;
+            int viewOffset = 0;
 
             try (Terminal terminal = TerminalBuilder.builder()
                     .name("File Manager")
@@ -62,18 +63,31 @@ public class TerminalHandler {
                     terminal.writer().println(terminalWidth + "x" + terminalHeight);
                     terminalSizeCallBack(terminal);
 
+                    int listHeight = terminalHeight - 3;
+                    if (listHeight < 1) {
+                        listHeight = 1;
+                    }
+
+                    if (selectedIndex < viewOffset) {
+                        viewOffset = selectedIndex;
+                    } else if (selectedIndex >= viewOffset + listHeight) {
+                        viewOffset = selectedIndex - listHeight + 1;
+                    }
+
+                    int endIndex = Math.min(fileAndDirList.length, viewOffset + listHeight);
+
                     // terminal.writer().println("Directories:");
-                    for (int i = 0; i < fileAndDirList.length; i++) {
+                    for (int i = viewOffset; i < endIndex; i++) {
                         // if (i == fileList.length) {
                         // terminal.writer().println("Files:");
                         // }
                         if (i == selectedIndex) {
-                            terminal.writer().print("\u001B[31m"+">"+"\u001B[0m"+"\u001B[47m");
+                            terminal.writer().print("\u001B[31m" + ">" + "\u001B[0m" + "\u001B[47m");
                         }
                         if (i >= dirList.length) {
-                            terminal.writer().println("\u001B[33m"+fileAndDirList[i].getName()+"\u001B[0m");
+                            terminal.writer().println("\u001B[33m" + fileAndDirList[i].getName() + "\u001B[0m");
                         } else {
-                            terminal.writer().println("\u001B[36m"+fileAndDirList[i].getName()+ "/ "+"\u001B[0m");
+                            terminal.writer().println("\u001B[36m" + fileAndDirList[i].getName() + "/ " + "\u001B[0m");
                         }
                     }
 
@@ -96,10 +110,14 @@ public class TerminalHandler {
 
                                 break;
                             case LEFT:
-                                curDir = curDir.getParentFile();
-                                updateFilesAndDirs();
-                                selectedIndex = 0;
+                                File parentDir = curDir.getParentFile();
+                                if (parentDir != null) {
+                                    curDir = curDir.getParentFile();
+                                    updateFilesAndDirs();
+                                    selectedIndex = 0;
+                                }
                                 break;
+
                             case EXIT:
                                 isReading = false;
                                 break;
@@ -123,7 +141,7 @@ public class TerminalHandler {
 
     public void terminalSizeCallBack(Terminal terminal) {
         terminal.puts(Capability.clear_screen);
-        terminal.writer().println("DEBUG: Screen cleared(Screen size update)");
+        // terminal.writer().println("DEBUG: Screen cleared(Screen size update)");
     }
 
     public void updateFilesAndDirs() {
