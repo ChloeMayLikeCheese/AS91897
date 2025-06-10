@@ -25,6 +25,7 @@ public class TerminalHandler {
         RIGHT,
         ENTER,
         COMMAND,
+        CREATE,
         EXIT
     }
 
@@ -50,7 +51,8 @@ public class TerminalHandler {
                 keyMap.bind(Operation.LEFT, "\033[D");
                 keyMap.bind(Operation.RIGHT, "\033[C");
                 keyMap.bind(Operation.ENTER, "\r", "\n");
-                keyMap.bind(Operation.COMMAND, "a", "b", "c", "d");
+                keyMap.bind(Operation.COMMAND, "a", "b");
+                keyMap.bind(Operation.CREATE, "c");
                 keyMap.bind(Operation.EXIT, "q");
 
                 boolean isReading = true;
@@ -119,12 +121,11 @@ public class TerminalHandler {
 
                                 break;
                             case LEFT:
-                                previousSelectedIndex = selectedIndex;
                                 File parentDir = curDir.getParentFile();
                                 if (parentDir != null) {
                                     curDir = curDir.getParentFile();
                                     updateFilesAndDirs();
-                                    
+                                    selectedIndex = 0;
                                 }
                                 break;
                             case RIGHT:
@@ -144,6 +145,8 @@ public class TerminalHandler {
 
 
                                 break;
+                            case CREATE:
+
                             case EXIT:
                                 isReading = false;
                                 break;

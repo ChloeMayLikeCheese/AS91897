@@ -47,6 +47,8 @@ Thumbs.db
 /build
 */build
 
+*.bin
+
 # IntelliJ specific files/directories
 out
 .idea
