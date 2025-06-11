@@ -47,8 +47,6 @@ Thumbs.db
 /build
 */build
 
-*.bin
-
 # IntelliJ specific files/directories
 out
 .idea
@@ -65,5 +63,3 @@ atlassian-ide-plugin.xml
 
 # NetBeans specific files/directories
 .nbattrs
-build/reports/problems/problems-report.html
-build/tmp/compileJava/previous-compilation-data.bin
