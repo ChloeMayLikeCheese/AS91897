@@ -5,6 +5,8 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import org.jline.keymap.BindingReader;
 import org.jline.keymap.KeyMap;
+import org.jline.reader.LineReader;
+import org.jline.reader.LineReaderBuilder;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
@@ -26,7 +28,8 @@ public class TerminalHandler {
         ENTER,
         COMMAND,
         CREATE,
-        EXIT
+        EXIT,
+        ESC
     }
 
     public TerminalHandler() throws IOException {
@@ -54,6 +57,11 @@ public class TerminalHandler {
                 keyMap.bind(Operation.COMMAND, "a", "b");
                 keyMap.bind(Operation.CREATE, "c");
                 keyMap.bind(Operation.EXIT, "q");
+                keyMap.bind(Operation.ESC, "\033");
+
+                LineReader lineReader = LineReaderBuilder.builder()
+                        .terminal(terminal)
+                        .build();
 
                 boolean isReading = true;
                 while (isReading) {
@@ -92,11 +100,9 @@ public class TerminalHandler {
 
                         } else {
                             if (i == selectedIndex) {
-                                terminal.writer()
-                                        .println("\u001B[40m" + fileAndDirList[i].getName() + "/ " + "\u001B[0m");
+                                terminal.writer().println("\u001B[40m" + fileAndDirList[i].getName() + "/ " + "\u001B[0m");
                             } else {
-                                terminal.writer()
-                                        .println("\u001B[36m" + fileAndDirList[i].getName() + "/ " + "\u001B[0m");
+                                terminal.writer().println("\u001B[36m" + fileAndDirList[i].getName() + "/ " + "\u001B[0m");
                             }
 
                         }
@@ -130,25 +136,33 @@ public class TerminalHandler {
                                 break;
                             case RIGHT:
                             case ENTER:
-                            if (fileAndDirList.length != 0) {
-                                if (fileAndDirList[selectedIndex] != null) {
-                                    File selectedFile = fileAndDirList[selectedIndex];
-                                    if (selectedFile != null) {
-                                        if (selectedFile.isDirectory()) {
-                                            curDir = selectedFile;
-                                            updateFilesAndDirs();
-                                            selectedIndex = previousSelectedIndex;
+                                if (fileAndDirList.length != 0) {
+                                    if (fileAndDirList[selectedIndex] != null) {
+                                        File selectedFile = fileAndDirList[selectedIndex];
+                                        if (selectedFile != null) {
+                                            if (selectedFile.isDirectory()) {
+                                                curDir = selectedFile;
+                                                updateFilesAndDirs();
+                                                selectedIndex = previousSelectedIndex;
+                                            }
                                         }
                                     }
                                 }
-                            }
-
 
                                 break;
                             case CREATE:
+                            try {
+                                String fileIn = lineReader.readLine("Enter File name: ");
+                                if (Operation.EXIT != null) {
 
+                                }
+                            } catch (Exception e) {
+
+                            }
+
+                                break;
                             case EXIT:
-                                isReading = false;
+                                System.exit(0);
                                 break;
                             default:
 
