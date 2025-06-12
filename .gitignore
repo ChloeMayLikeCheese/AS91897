@@ -47,6 +47,7 @@ Thumbs.db
 /build
 */build
 build/
+gradle/wrapper
 
 # IntelliJ specific files/directories
 out
