@@ -153,8 +153,12 @@ public class TerminalHandler {
                             case CREATE:
                             try {
                                 String fileIn = lineReader.readLine("Enter File name: ");
-                                if (Operation.EXIT != null) {
-
+                                if (Operation.ESC != null) {
+                                    
+                                }else{
+                                    File file = new File(fileIn);
+                                    file.createNewFile();
+                                    updateFilesAndDirs();
                                 }
                             } catch (Exception e) {
 

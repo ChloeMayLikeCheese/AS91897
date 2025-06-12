@@ -63,3 +63,7 @@ atlassian-ide-plugin.xml
 
 # NetBeans specific files/directories
 .nbattrs
+build/tmp/compileJava/previous-compilation-data.bin
+build/tmp/compileJava/compileTransaction/stash-dir/TerminalHandler.class.uniqueId1
+build/tmp/compileJava/compileTransaction/stash-dir/TerminalHandler$1.class.uniqueId2
+build/tmp/compileJava/compileTransaction/stash-dir/TerminalHandler$2.class.uniqueId0
