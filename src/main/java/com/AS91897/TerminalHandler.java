@@ -3,10 +3,12 @@ package com.AS91897;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+
 import org.jline.keymap.BindingReader;
 import org.jline.keymap.KeyMap;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
+import org.jline.reader.UserInterruptException;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
@@ -28,11 +30,10 @@ public class TerminalHandler {
         ENTER,
         COMMAND,
         CREATE,
-        EXIT,
-        ESC
+        EXIT
     }
 
-    public TerminalHandler() throws IOException {
+    public TerminalHandler() throws IOException, InterruptedException {
         curDir = new File("./").getAbsoluteFile();
         updateFilesAndDirs();
         while (true) {
@@ -57,7 +58,6 @@ public class TerminalHandler {
                 keyMap.bind(Operation.COMMAND, "a", "b");
                 keyMap.bind(Operation.CREATE, "c");
                 keyMap.bind(Operation.EXIT, "q");
-                keyMap.bind(Operation.ESC, "\033");
 
                 LineReader lineReader = LineReaderBuilder.builder()
                         .terminal(terminal)
@@ -100,9 +100,11 @@ public class TerminalHandler {
 
                         } else {
                             if (i == selectedIndex) {
-                                terminal.writer().println("\u001B[40m" + fileAndDirList[i].getName() + "/ " + "\u001B[0m");
+                                terminal.writer()
+                                        .println("\u001B[40m" + fileAndDirList[i].getName() + "/ " + "\u001B[0m");
                             } else {
-                                terminal.writer().println("\u001B[36m" + fileAndDirList[i].getName() + "/ " + "\u001B[0m");
+                                terminal.writer()
+                                        .println("\u001B[36m" + fileAndDirList[i].getName() + "/ " + "\u001B[0m");
                             }
 
                         }
@@ -151,18 +153,24 @@ public class TerminalHandler {
 
                                 break;
                             case CREATE:
-                            try {
-                                String fileIn = lineReader.readLine("Enter File name: ");
-                                if (Operation.ESC != null) {
-                                    
-                                }else{
-                                    File file = new File(fileIn);
-                                    file.createNewFile();
-                                    updateFilesAndDirs();
-                                }
-                            } catch (Exception e) {
+                                try {
+                                    String fileIn = lineReader.readLine(
+                                            "Press CRTL+C to quit, Press Enter to confirm\nEnter File name: ").strip();
+                                    if (fileIn != ""){
+                                        File file = new File(fileIn);
+                                        file.createNewFile();
+                                        updateFilesAndDirs();
+                                    }
 
-                            }
+
+                                } catch (UserInterruptException e) {
+                                    terminal.writer().println("Exited file creation");
+                                    terminal.writer().flush();
+                                    Thread.sleep(500);
+
+                                } catch (IOException e) {
+
+                                }
 
                                 break;
                             case EXIT:
