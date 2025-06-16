@@ -92,13 +92,15 @@ public class TerminalHandler {
 
                     for (int i = viewOffset; i < endIndex; i++) {
                         if (i == selectedIndex) {
-                            terminal.writer().print("\u001B[38;2;243;139;168m" + ">" + "\u001B[0m" + "\u001B[38;2;49;50;68m");
+                            terminal.writer()
+                                    .print("\u001B[38;2;243;139;168m" + ">" + "\u001B[0m" + "\u001B[38;2;49;50;68m");
                         }
                         if (i >= dirList.length) {
                             if (i == selectedIndex) {
                                 terminal.writer().println("\u001B[40m" + fileAndDirList[i].getName() + "\u001B[0m");
                             } else {
-                                terminal.writer().println("\u001B[38;2;245;194;231m" + fileAndDirList[i].getName() + "\u001B[0m");
+                                terminal.writer().println(
+                                        "\u001B[38;2;245;194;231m" + fileAndDirList[i].getName() + "\u001B[0m");
                             }
 
                         } else {
@@ -107,7 +109,8 @@ public class TerminalHandler {
                                         .println("\u001B[40m" + fileAndDirList[i].getName() + "/ " + "\u001B[0m");
                             } else {
                                 terminal.writer()
-                                        .println("\u001B[38;2;180;190;254m" + fileAndDirList[i].getName() + "/ " + "\u001B[0m");
+                                        .println("\u001B[38;2;180;190;254m" + fileAndDirList[i].getName() + "/ "
+                                                + "\u001B[0m");
                             }
 
                         }
@@ -142,7 +145,9 @@ public class TerminalHandler {
                                 if (parentDir != null) {
                                     curDir = curDir.getParentFile();
                                     updateFilesAndDirs();
+                                    previousSelectedIndex = selectedIndex;
                                     selectedIndex = 0;
+
                                 }
 
                                 break;
@@ -165,7 +170,10 @@ public class TerminalHandler {
                             case CREATE:
                                 try {
                                     String fileIn = lineReader.readLine(
-                                            "Press CRTL+C to quit, Press Enter to confirm\nEnter File name: ").strip();
+                                            "\u001B[38;2;203;166;247m"
+                                                    + "Press CRTL+C to quit, Press Enter to confirm\nEnter File name: "
+                                                    + "\u001B[0m")
+                                            .strip();
                                     if (fileIn != "") {
 
                                         File file = new File(curDir.getAbsolutePath() + "/" + fileIn);
@@ -174,7 +182,7 @@ public class TerminalHandler {
                                     }
 
                                 } catch (UserInterruptException e) {
-                                    terminal.writer().println("Exited file creation");
+                                    terminal.writer().println("\u001B[38;2;245;194;231m"+"Exited file creation"+"\u001B[0m");
                                     terminal.writer().flush();
                                     Thread.sleep(500);
 
@@ -237,13 +245,14 @@ public class TerminalHandler {
         if (curDir.getParentFile() != null) {
             allfiles = curDir.getAbsolutePath();
             String[] allFilesArray = allfiles.split("/");
-            allFilesArray[allFilesArray.length -1] = "\u001B[48;2;186;192;222m" +"\u001B[38;2;49;50;68m"+ allFilesArray[allFilesArray.length -1] + "\u001B[0m";
-            for (int i = 0; i < allFilesArray.length-1; i++) {
-                allFilesArray[i] = "\u001B[38;2;203;166;247m"+allFilesArray[i]+"/"+"\u001B[0m";
+            allFilesArray[allFilesArray.length - 1] = "\u001B[48;2;186;192;222m" + "\u001B[38;2;49;50;68m"
+                    + allFilesArray[allFilesArray.length - 1] + "\u001B[0m";
+            for (int i = 0; i < allFilesArray.length - 1; i++) {
+                allFilesArray[i] = "\u001B[38;2;203;166;247m" + allFilesArray[i] + "/" + "\u001B[0m";
             }
             allfiles = Arrays.toString(allFilesArray);
             allfiles = allfiles.replaceAll(", ", "");
-        }else{
+        } else {
             allfiles = "/";
         }
 
