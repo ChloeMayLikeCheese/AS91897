@@ -2,6 +2,6 @@ ONLY the final release is meant for the assesment, the rest I have just used as 
 
 # Usage  
 Just run the jar from the last release and run it with  
-'java -jar AS91897-all.jar'
+''' java -jar AS91897-all.jar '''
 
 Bluej instructions soon
