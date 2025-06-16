@@ -129,7 +129,7 @@ public class TerminalHandler {
 
                                 break;
                             case LEFT:
-                                File parentDir = curDir.getParentFile();
+
                                 if (parentDir != null) {
                                     curDir = curDir.getParentFile();
                                     updateFilesAndDirs();
@@ -221,4 +221,5 @@ public class TerminalHandler {
         }
 
     }
+
 }
