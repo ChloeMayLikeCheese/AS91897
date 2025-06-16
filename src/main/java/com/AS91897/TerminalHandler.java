@@ -156,12 +156,12 @@ public class TerminalHandler {
                                 try {
                                     String fileIn = lineReader.readLine(
                                             "Press CRTL+C to quit, Press Enter to confirm\nEnter File name: ").strip();
-                                    if (fileIn != ""){
-                                        File file = new File(fileIn);
+                                    if (fileIn != "") {
+
+                                        File file = new File(curDir.getAbsolutePath() + "/" + fileIn);
                                         file.createNewFile();
                                         updateFilesAndDirs();
                                     }
-
 
                                 } catch (UserInterruptException e) {
                                     terminal.writer().println("Exited file creation");
