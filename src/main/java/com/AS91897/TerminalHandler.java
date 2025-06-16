@@ -3,6 +3,7 @@ package com.AS91897;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.Arrays;
 
 import org.jline.keymap.BindingReader;
 import org.jline.keymap.KeyMap;
@@ -34,7 +35,11 @@ public class TerminalHandler {
     }
 
     public TerminalHandler() throws IOException, InterruptedException {
+        boolean hasPrintedWelcome = false;
         curDir = new File("./").getAbsoluteFile();
+        if (curDir.getParentFile() != null) {
+            curDir = curDir.getParentFile();
+        }
         updateFilesAndDirs();
         while (true) {
 
@@ -110,7 +115,13 @@ public class TerminalHandler {
                         }
                     }
 
-                    terminal.writer().println("Press arrow up/down/left/right, a/b/c/d, or 'q' to quit.");
+                    if (!hasPrintedWelcome) {
+                        terminal.writer().println(
+                                "Welcome! \nPress arrow up/down/left/right to navigate, h for help , or 'q' to quit.");
+                        hasPrintedWelcome = true;
+                    }
+
+                    terminal.writer().println(getAllFiles());
                     terminal.writer().flush();
 
                     Operation op = bindingReader.readBinding(keyMap, null, false);
@@ -135,6 +146,7 @@ public class TerminalHandler {
                                     updateFilesAndDirs();
                                     selectedIndex = 0;
                                 }
+
                                 break;
                             case RIGHT:
                             case ENTER:
@@ -169,7 +181,7 @@ public class TerminalHandler {
                                     Thread.sleep(500);
 
                                 } catch (IOException e) {
-
+                                    // Do nothing
                                 }
 
                                 break;
@@ -189,7 +201,7 @@ public class TerminalHandler {
 
     }
 
-    public void setTerminalSizeVariable(Size terminalSize) {
+    public void terminalSizeVariableSetter(Size terminalSize) {
         this.terminalSize = terminalSize;
 
     }
@@ -221,11 +233,22 @@ public class TerminalHandler {
         }
 
     }
-    public void displayDirBar(){
-        File parentDir = curDir.getParentFile();
-        boolean fileCounting = true;
-        while (fileCounting) {
-            
+
+    public String getAllFiles() {
+        String allfiles = null;
+        if (curDir.getParentFile() != null) {
+            allfiles = curDir.getAbsolutePath();
+            String[] allFilesArray = allfiles.split("/");
+            allFilesArray[allFilesArray.length -1] = "\u001B[47m" +"\u001B[30m"+ allFilesArray[allFilesArray.length -1] + "\u001B[0m";
+            for (int i = 0; i < allFilesArray.length; i++) {
+                allFilesArray[i] = "/" + allFilesArray[i];
+            }
+            allfiles = Arrays.toString(allFilesArray);
+            allfiles = allfiles.replaceAll(", ", "");
+        }else{
+            allfiles = "/";
         }
+
+        return allfiles;
     }
 }
