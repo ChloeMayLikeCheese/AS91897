@@ -36,10 +36,7 @@ public class TerminalHandler {
 
     public TerminalHandler() throws IOException, InterruptedException {
         boolean hasPrintedWelcome = false;
-        curDir = new File("./").getAbsoluteFile();
-        if (curDir.getParentFile() != null) {
-            curDir = curDir.getParentFile();
-        }
+        curDir = new File("./").getAbsoluteFile().getParentFile();
         updateFilesAndDirs();
         while (true) {
 
