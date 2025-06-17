@@ -93,24 +93,29 @@ public class TerminalHandler {
                     for (int i = viewOffset; i < endIndex; i++) {
                         if (i == selectedIndex) {
                             terminal.writer()
-                                    .print("\u001B[38;2;243;139;168m" + ">" + "\u001B[0m" + "\u001B[38;2;49;50;68m");
+                                    .print(SetColour.set(" >", 234, 139, 168));
                         }
                         if (i >= dirList.length) {
                             if (i == selectedIndex) {
-                                terminal.writer().println("\u001B[40m" + fileAndDirList[i].getName() + "\u001B[0m");
+                                terminal.writer().println(SetColour
+                                .setBG(SetColour.set(fileAndDirList[i].getName(), 49, 50, 68),
+                                        186, 192,
+                                        222));
                             } else {
                                 terminal.writer().println(
-                                        "\u001B[38;2;245;194;231m" + fileAndDirList[i].getName() + "\u001B[0m");
+                                        SetColour.set(fileAndDirList[i].getName(), 245, 194, 231));
                             }
 
                         } else {
                             if (i == selectedIndex) {
                                 terminal.writer()
-                                        .println("\u001B[40m" + fileAndDirList[i].getName() + "/ " + "\u001B[0m");
+                                        .println(SetColour
+                                                .setBG(SetColour.set(fileAndDirList[i].getName() + "/", 49, 50, 68),
+                                                        186, 192,
+                                                        222));
                             } else {
                                 terminal.writer()
-                                        .println("\u001B[38;2;180;190;254m" + fileAndDirList[i].getName() + "/ "
-                                                + "\u001B[0m");
+                                        .println(SetColour.set(fileAndDirList[i].getName() + "/", 180, 190, 245));
                             }
 
                         }
@@ -118,7 +123,7 @@ public class TerminalHandler {
 
                     if (!hasPrintedWelcome) {
                         terminal.writer().println(
-                                "Welcome! \nPress arrow up/down/left/right to navigate, h for help , or 'q' to quit.");
+                                "Welcome! Press arrow up/down/left/right to navigate, h for help , or 'q' to quit.");
                         hasPrintedWelcome = true;
                     }
 
@@ -170,9 +175,9 @@ public class TerminalHandler {
                             case CREATE:
                                 try {
                                     String fileIn = lineReader.readLine(
-                                            "\u001B[38;2;203;166;247m"
-                                                    + "Press CRTL+C to quit, Press Enter to confirm\nEnter File name: "
-                                                    + "\u001B[0m")
+                                            SetColour.set(
+                                                    "Press CRTL+C to quit, Press Enter to confirm\nEnter File name: ",
+                                                    203, 166, 247))
                                             .strip();
                                     if (fileIn != "") {
 
@@ -182,7 +187,8 @@ public class TerminalHandler {
                                     }
 
                                 } catch (UserInterruptException e) {
-                                    terminal.writer().println("\u001B[38;2;245;194;231m"+"Exited file creation"+"\u001B[0m");
+                                    terminal.writer()
+                                            .println(SetColour.set("Exited file creation", 245, 194, 231));
                                     terminal.writer().flush();
                                     Thread.sleep(500);
 
@@ -241,21 +247,23 @@ public class TerminalHandler {
     }
 
     public String getAllFiles() {
-        String allfiles = null;
+        String allFiles = null;
+
         if (curDir.getParentFile() != null) {
-            allfiles = curDir.getAbsolutePath();
-            String[] allFilesArray = allfiles.split("/");
-            allFilesArray[allFilesArray.length - 1] = "\u001B[48;2;186;192;222m" + "\u001B[38;2;49;50;68m"
-                    + allFilesArray[allFilesArray.length - 1] + "\u001B[0m";
+            allFiles = curDir.getAbsolutePath();
+            String[] allFilesArray = allFiles.split("/");
+            allFilesArray[allFilesArray.length - 1] = SetColour
+                    .setBG(SetColour.set(allFilesArray[allFilesArray.length - 1], 49, 50, 68), 186, 192, 222);
             for (int i = 0; i < allFilesArray.length - 1; i++) {
-                allFilesArray[i] = "\u001B[38;2;203;166;247m" + allFilesArray[i] + "/" + "\u001B[0m";
+                allFilesArray[i] = SetColour.set(allFilesArray[i] + "/", 203, 166, 247);
+
             }
-            allfiles = Arrays.toString(allFilesArray);
-            allfiles = allfiles.replaceAll(", ", "");
+            allFiles = Arrays.toString(allFilesArray);
+            allFiles = allFiles.replaceAll(", ", "");
         } else {
-            allfiles = "/";
+            allFiles = SetColour.set("/", 203, 166, 247);
         }
 
-        return allfiles;
+        return allFiles;
     }
 }
