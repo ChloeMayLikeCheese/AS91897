@@ -31,7 +31,8 @@ public class TerminalHandler {
         ENTER,
         COMMAND,
         CREATE,
-        EXIT
+        EXIT,
+        HELP
     }
 
     public TerminalHandler() throws IOException, InterruptedException {
@@ -61,6 +62,7 @@ public class TerminalHandler {
                 keyMap.bind(Operation.COMMAND, "a", "b");
                 keyMap.bind(Operation.CREATE, "c");
                 keyMap.bind(Operation.EXIT, "q");
+                keyMap.bind(Operation.HELP, "h");
 
                 LineReader lineReader = LineReaderBuilder.builder()
                         .terminal(terminal)
@@ -98,9 +100,9 @@ public class TerminalHandler {
                         if (i >= dirList.length) {
                             if (i == selectedIndex) {
                                 terminal.writer().println(SetColour
-                                .setBG(SetColour.set(fileAndDirList[i].getName(), 49, 50, 68),
-                                        186, 192,
-                                        222));
+                                        .setBG(SetColour.set(fileAndDirList[i].getName(), 49, 50, 68),
+                                                186, 192,
+                                                222));
                             } else {
                                 terminal.writer().println(
                                         SetColour.set(fileAndDirList[i].getName(), 245, 194, 231));
@@ -200,8 +202,29 @@ public class TerminalHandler {
                             case EXIT:
                                 System.exit(0);
                                 break;
-                            default:
+                            case HELP:
+                                boolean sleeping = true;
+                                Object sleeper = new Object();
+                                terminal.puts(Capability.clear_screen);
+                                terminal.writer().println(
+                                        "Help:\n Press c to create a file\n Press h for help\n Press left or right arrows to navigate to the previous or next directory\n Press up or down to navigate up or down the folder list\n Press Crtl+C to exit menus like this or q to exit the program");
+                                terminal.writer().flush();
+                                if (bindingReader.readCharacter() != 0) {
+                                    sleeping = false;
+                                    terminal.writer()
+                                            .println(SetColour.set("Exited help menu", 245, 194, 231));
+                                    terminal.writer().flush();
+                                    Thread.sleep(500);
+                                }
 
+                                while (sleeping) {
+                                    synchronized (sleeper) {
+                                        sleeper.wait();
+                                    }
+                                }
+
+                                break;
+                            default:
                                 break;
                         }
                     }
