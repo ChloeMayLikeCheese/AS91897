@@ -80,7 +80,6 @@ public class TerminalHandler {
 
                     terminal.puts(Capability.clear_screen);
                     terminal.writer().println(terminalWidth + "x" + terminalHeight);
-                    terminalSizeCallBack(terminal);
 
                     int listHeight = terminalHeight - 3;
                     if (listHeight < 1) {
@@ -256,15 +255,6 @@ public class TerminalHandler {
 
     }
 
-    public void terminalSizeVariableSetter(Size terminalSize) {
-        this.terminalSize = terminalSize;
-
-    }
-
-    public void terminalSizeCallBack(Terminal terminal) {
-        terminal.puts(Capability.clear_screen);
-
-    }
 
     public void updateFilesAndDirs() {
         dirList = curDir.listFiles(new FilenameFilter() {
