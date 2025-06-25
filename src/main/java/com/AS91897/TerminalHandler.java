@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import sun.misc.Signal;
 
 import org.jline.keymap.BindingReader;
 import org.jline.keymap.KeyMap;
@@ -13,6 +16,7 @@ import org.jline.reader.UserInterruptException;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
+import org.jline.terminal.Terminal.SignalHandler;
 import org.jline.utils.InfoCmp.Capability;
 
 public class TerminalHandler {
@@ -72,7 +76,6 @@ public class TerminalHandler {
                 while (isReading) {
                     int terminalWidth = terminal.getWidth();
                     int terminalHeight = terminal.getHeight();
-
                     terminalSize = terminal.getSize();
 
                     terminal.puts(Capability.clear_screen);
@@ -190,7 +193,7 @@ public class TerminalHandler {
 
                                 } catch (UserInterruptException e) {
                                     terminal.writer()
-                                            .println(SetColour.set("Exited file creation", 245, 194, 231));
+                                            .println(SetColour.set("Exited file creation", 243, 139, 168));
                                     terminal.writer().flush();
                                     Thread.sleep(500);
 
@@ -203,25 +206,42 @@ public class TerminalHandler {
                                 System.exit(0);
                                 break;
                             case HELP:
-                                boolean sleeping = true;
+
+                                AtomicBoolean sleeping = new AtomicBoolean(true);
                                 Object sleeper = new Object();
                                 terminal.puts(Capability.clear_screen);
-                                terminal.writer().println(
-                                        "Help:\n Press c to create a file\n Press h for help\n Press left or right arrows to navigate to the previous or next directory\n Press up or down to navigate up or down the folder list\n Press Crtl+C to exit menus like this or q to exit the program");
+                                terminal.writer().println(SetColour.set(
+                                        "Help:\n Press c to create a file\n Press h for help\n Press left or right arrows to navigate to the previous or next directory\n Press up or down to navigate up or down the folder list\n Press Crtl+C to exit menus like this or q to exit the program",
+                                        203, 166, 247));
                                 terminal.writer().flush();
-                                if (bindingReader.readCharacter() != 0) {
-                                    sleeping = false;
-                                    terminal.writer()
-                                            .println(SetColour.set("Exited help menu", 245, 194, 231));
-                                    terminal.writer().flush();
-                                    Thread.sleep(500);
-                                }
+                                Signal sig = new Signal("INT");
+                                sun.misc.SignalHandler oldHandler = Signal.handle(sig, null);
 
-                                while (sleeping) {
+                                Signal.handle(sig, signal -> {
+                                    sleeping.set(false);
+                                    terminal.writer().println(SetColour.set("Exited help menu", 243, 139, 168));
+                                    terminal.writer().flush();
+                                    try {
+                                        Thread.sleep(500);
+                                    } catch (InterruptedException e) {
+
+                                    }
                                     synchronized (sleeper) {
-                                        sleeper.wait();
+                                        sleeper.notify();
+                                    }
+                                });
+
+                                while (sleeping.get()) {
+                                    synchronized (sleeper) {
+                                        try {
+                                            sleeper.wait();
+                                        } catch (InterruptedException e) {
+                                            e.printStackTrace(); // for degug dont forgor to remove to not spam errors
+                                        }
                                     }
                                 }
+
+                                Signal.handle(sig, oldHandler);
 
                                 break;
                             default:
