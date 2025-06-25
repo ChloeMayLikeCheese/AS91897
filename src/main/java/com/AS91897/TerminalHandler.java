@@ -127,8 +127,9 @@ public class TerminalHandler {
                     }
 
                     if (!hasPrintedWelcome) {
-                        terminal.writer().println(
-                                "Welcome! Press arrow up/down/left/right to navigate, h for help , or 'q' to quit.");
+                        terminal.writer().println(SetColour.set(
+                                "Welcome! Press arrow up/down/left/right to navigate, h for help , or 'q' to quit.",
+                                203, 166, 247));
                         hasPrintedWelcome = true;
                     }
 
@@ -214,10 +215,9 @@ public class TerminalHandler {
                                         "Help:\n Press c to create a file\n Press h for help\n Press left or right arrows to navigate to the previous or next directory\n Press up or down to navigate up or down the folder list\n Press Crtl+C to exit menus like this or q to exit the program",
                                         203, 166, 247));
                                 terminal.writer().flush();
-                                Signal sig = new Signal("INT");
-                                sun.misc.SignalHandler oldHandler = Signal.handle(sig, null);
 
-                                Signal.handle(sig, signal -> {
+                                Signal sig = new Signal("INT");
+                                sun.misc.SignalHandler oldHandler = Signal.handle(sig, signal -> {
                                     sleeping.set(false);
                                     terminal.writer().println(SetColour.set("Exited help menu", 243, 139, 168));
                                     terminal.writer().flush();
