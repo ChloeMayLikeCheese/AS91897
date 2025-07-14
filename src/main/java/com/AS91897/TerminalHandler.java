@@ -13,10 +13,11 @@ import org.jline.keymap.KeyMap;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
+import org.jline.terminal.Attributes;
 import org.jline.terminal.Size;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
-import org.jline.terminal.Terminal.SignalHandler;
+import org.jline.terminal.Attributes.ControlChar;
 import org.jline.utils.InfoCmp.Capability;
 
 public class TerminalHandler {
@@ -33,8 +34,8 @@ public class TerminalHandler {
         LEFT,
         RIGHT,
         ENTER,
-        COMMAND,
         CREATE,
+        RENAME,
         EXIT,
         HELP
     }
@@ -45,7 +46,6 @@ public class TerminalHandler {
         updateFilesAndDirs();
 
         while (true) {
-
             int selectedIndex = 0;
             int previousSelectedIndex = 0;
             int viewOffset = 0;
@@ -55,6 +55,11 @@ public class TerminalHandler {
                     .jna(true)
                     .build()) {
                 terminal.enterRawMode();
+                // Attributes a = terminal.getAttributes();
+                // a.setControlChar(ControlChar.VMIN, 0);
+                // a.setControlChar(ControlChar.VTIME, 1);
+                // terminal.setAttributes(a);
+
 
                 BindingReader bindingReader = new BindingReader(terminal.reader());
                 KeyMap<Operation> keyMap = new KeyMap<>();
@@ -63,23 +68,22 @@ public class TerminalHandler {
                 keyMap.bind(Operation.LEFT, "\033[D");
                 keyMap.bind(Operation.RIGHT, "\033[C");
                 keyMap.bind(Operation.ENTER, "\r", "\n");
-                keyMap.bind(Operation.COMMAND, "a", "b");
                 keyMap.bind(Operation.CREATE, "c");
+                keyMap.bind(Operation.RENAME, "r");
                 keyMap.bind(Operation.EXIT, "q");
                 keyMap.bind(Operation.HELP, "h");
-
+                keyMap.setAmbiguousTimeout(50);
                 LineReader lineReader = LineReaderBuilder.builder()
                         .terminal(terminal)
                         .build();
 
                 boolean isReading = true;
                 while (isReading) {
-                    int terminalWidth = terminal.getWidth();
+                    //int terminalWidth = terminal.getWidth();
                     int terminalHeight = terminal.getHeight();
-                    terminalSize = terminal.getSize();
+                    // terminalSize = terminal.getSize();
 
                     terminal.puts(Capability.clear_screen);
-                    terminal.writer().println(terminalWidth + "x" + terminalHeight);
 
                     int listHeight = terminalHeight - 3;
                     if (listHeight < 1) {
@@ -166,13 +170,11 @@ public class TerminalHandler {
                                 if (fileAndDirList.length != 0) {
                                     if (fileAndDirList[selectedIndex] != null) {
                                         File selectedFile = fileAndDirList[selectedIndex];
-                                        if (selectedFile != null) {
                                             if (selectedFile.isDirectory()) {
                                                 curDir = selectedFile;
                                                 updateFilesAndDirs();
                                                 selectedIndex = previousSelectedIndex;
                                             }
-                                        }
                                     }
                                 }
 
@@ -181,7 +183,7 @@ public class TerminalHandler {
                                 try {
                                     String fileIn = lineReader.readLine(
                                             SetColour.set(
-                                                    "Press CRTL+C to quit, Press Enter to confirm\nEnter File name: ",
+                                                    "Press CRTL+C to quit, Press enter to confirm\nEnter file name: ",
                                                     203, 166, 247))
                                             .strip();
                                     if (fileIn != "") {
@@ -201,6 +203,34 @@ public class TerminalHandler {
                                     // Do nothing
                                 }
 
+                                break;
+                            case RENAME:
+                            if (fileAndDirList.length != 0) {
+                                if (fileAndDirList[selectedIndex] != null) {
+                                    File selectedFile = fileAndDirList[selectedIndex];
+                                    if (selectedFile != null) {
+                                        try {
+                                            String fileIn = lineReader.readLine(
+                                                    SetColour.set(
+                                                            "Press CRTL+C to quit, Press enter to confirm\nEnter what you want to rename the file to (Current name:"+selectedFile.getAbsoluteFile()+"):",
+                                                            203, 166, 247))
+                                                    .strip();
+                                            if (fileIn != "") {
+                                                selectedFile.renameTo(new File(fileIn));
+                                                updateFilesAndDirs();
+                                                
+                                            }
+        
+                                        } catch (UserInterruptException e) {
+                                            terminal.writer()
+                                                    .println(SetColour.set("Exited file rename", 243, 139, 168));
+                                            terminal.writer().flush();
+                                            Thread.sleep(500);
+        
+                                        }
+                                    }
+                                }
+                            }
                                 break;
                             case EXIT:
                                 System.exit(0);
