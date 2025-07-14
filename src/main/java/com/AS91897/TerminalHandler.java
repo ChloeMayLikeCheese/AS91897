@@ -36,6 +36,7 @@ public class TerminalHandler {
         ENTER,
         CREATE,
         RENAME,
+        DELETE,
         EXIT,
         HELP
     }
@@ -60,7 +61,6 @@ public class TerminalHandler {
                 // a.setControlChar(ControlChar.VTIME, 1);
                 // terminal.setAttributes(a);
 
-
                 BindingReader bindingReader = new BindingReader(terminal.reader());
                 KeyMap<Operation> keyMap = new KeyMap<>();
                 keyMap.bind(Operation.UP, "\033[A");
@@ -72,6 +72,7 @@ public class TerminalHandler {
                 keyMap.bind(Operation.RENAME, "r");
                 keyMap.bind(Operation.EXIT, "q");
                 keyMap.bind(Operation.HELP, "h");
+                keyMap.bind(Operation.DELETE, "d", "\u007f");
                 keyMap.setAmbiguousTimeout(50);
                 LineReader lineReader = LineReaderBuilder.builder()
                         .terminal(terminal)
@@ -79,7 +80,7 @@ public class TerminalHandler {
 
                 boolean isReading = true;
                 while (isReading) {
-                    //int terminalWidth = terminal.getWidth();
+                    // int terminalWidth = terminal.getWidth();
                     int terminalHeight = terminal.getHeight();
                     // terminalSize = terminal.getSize();
 
@@ -170,11 +171,11 @@ public class TerminalHandler {
                                 if (fileAndDirList.length != 0) {
                                     if (fileAndDirList[selectedIndex] != null) {
                                         File selectedFile = fileAndDirList[selectedIndex];
-                                            if (selectedFile.isDirectory()) {
-                                                curDir = selectedFile;
-                                                updateFilesAndDirs();
-                                                selectedIndex = previousSelectedIndex;
-                                            }
+                                        if (selectedFile.isDirectory()) {
+                                            curDir = selectedFile;
+                                            updateFilesAndDirs();
+                                            selectedIndex = previousSelectedIndex;
+                                        }
                                     }
                                 }
 
@@ -183,14 +184,37 @@ public class TerminalHandler {
                                 try {
                                     String fileIn = lineReader.readLine(
                                             SetColour.set(
-                                                    "Press CRTL+C to quit, Press enter to confirm\nEnter file name: ",
+                                                    "Press CRTL+C to quit, Press enter to confirm, type a '/' at the end to make it a directory\nEnter file name: ",
                                                     203, 166, 247))
                                             .strip();
                                     if (fileIn != "") {
+                                        if (fileIn.endsWith("/")) {
+                                            File dir = new File(curDir.getAbsolutePath() + "/" + fileIn);
+                                            if (!dir.exists()) {
+                                                dir.mkdirs();
+                                                updateFilesAndDirs();
+                                            } else {
+                                                terminal.writer()
+                                                        .println(SetColour.set("File or directory already exsists", 243,
+                                                                139, 168));
+                                                terminal.writer().flush();
+                                                Thread.sleep(500);
+                                            }
+                                        } else {
+                                            File file = new File(curDir.getAbsolutePath() + "/" + fileIn);
+                                            if (!file.exists()) {
+                                                file.createNewFile();
+                                                updateFilesAndDirs();
+                                            } else {
+                                                terminal.writer()
+                                                        .println(SetColour.set("File or directory already exsists", 243,
+                                                                139, 168));
+                                                terminal.writer().flush();
+                                                Thread.sleep(500);
+                                            }
 
-                                        File file = new File(curDir.getAbsolutePath() + "/" + fileIn);
-                                        file.createNewFile();
-                                        updateFilesAndDirs();
+                                        }
+
                                     }
 
                                 } catch (UserInterruptException e) {
@@ -205,32 +229,93 @@ public class TerminalHandler {
 
                                 break;
                             case RENAME:
-                            if (fileAndDirList.length != 0) {
-                                if (fileAndDirList[selectedIndex] != null) {
-                                    File selectedFile = fileAndDirList[selectedIndex];
-                                    if (selectedFile != null) {
-                                        try {
-                                            String fileIn = lineReader.readLine(
-                                                    SetColour.set(
-                                                            "Press CRTL+C to quit, Press enter to confirm\nEnter what you want to rename the file to (Current name:"+selectedFile.getAbsoluteFile()+"):",
-                                                            203, 166, 247))
-                                                    .strip();
-                                            if (fileIn != "") {
-                                                selectedFile.renameTo(new File(fileIn));
-                                                updateFilesAndDirs();
-                                                
+                                if (fileAndDirList.length != 0) {
+                                    if (fileAndDirList[selectedIndex] != null) {
+                                        File selectedFile = fileAndDirList[selectedIndex];
+                                        if (selectedFile != null) {
+                                            try {
+                                                String fileIn = lineReader.readLine(
+                                                        SetColour.set(
+                                                                "Press CRTL+C to quit, Press enter to confirm\nEnter what you want to rename the file/folder to (Current name: "
+                                                                        + selectedFile.getName() + "):",
+                                                                203, 166, 247))
+                                                        .strip();
+                                                if (fileIn != "") {
+                                                    selectedFile.renameTo(new File(fileIn));
+                                                    updateFilesAndDirs();
+
+                                                }
+
+                                            } catch (UserInterruptException e) {
+                                                terminal.writer()
+                                                        .println(SetColour.set("Exited file rename", 243, 139, 168));
+                                                terminal.writer().flush();
+                                                Thread.sleep(500);
+
                                             }
-        
-                                        } catch (UserInterruptException e) {
-                                            terminal.writer()
-                                                    .println(SetColour.set("Exited file rename", 243, 139, 168));
-                                            terminal.writer().flush();
-                                            Thread.sleep(500);
-        
                                         }
                                     }
                                 }
-                            }
+                                break;
+                            case DELETE:
+                                if (fileAndDirList.length != 0) {
+                                    if (fileAndDirList[selectedIndex] != null) {
+                                        File selectedFile = fileAndDirList[selectedIndex];
+                                        if (selectedFile != null) {
+                                            try {
+                                                if (selectedFile.isDirectory()
+                                                        && selectedFile.listFiles() != null) {
+                                                    String deleteConfirm = lineReader.readLine(
+                                                            SetColour.set(
+                                                                    "Press CRTL+C to quit, Press enter to confirm\nAre you sure? this will permanently delete '"
+                                                                            + selectedFile.getName()
+                                                                            + "' and all its contents(y/n)",
+                                                                    203, 166, 247))
+                                                            .strip().toLowerCase();
+                                                    if (deleteConfirm.equals("y")
+                                                            || deleteConfirm.equals("yes")) {
+                                                        deleteDir(selectedFile, selectedFile, terminal);
+                                                    }
+
+                                                } else {
+                                                    String deleteConfirm = lineReader.readLine(
+                                                            SetColour.set(
+                                                                    "Press CRTL+C to quit, Press enter to confirm\nAre you sure? this will permanently delete '"
+                                                                            + selectedFile.getName() + "'(y/n)",
+                                                                    203, 166, 247))
+                                                            .strip().toLowerCase();
+                                                    if (deleteConfirm.equals("y") || deleteConfirm.equals("yes")) {
+                                                        if (selectedFile.delete()) {
+                                                            updateFilesAndDirs();
+                                                            terminal.writer()
+                                                                    .println(SetColour.set(
+                                                                            selectedFile.getAbsoluteFile()
+                                                                                    + " deleted succsessfully",
+                                                                            243, 139, 168));
+                                                            terminal.writer().flush();
+                                                            Thread.sleep(500);
+                                                        } else {
+                                                            terminal.writer()
+                                                                    .println(SetColour.set(
+                                                                            "Failed to delete: "
+                                                                                    + selectedFile.getAbsoluteFile(),
+                                                                            243, 139, 168));
+                                                            terminal.writer().flush();
+                                                            Thread.sleep(500);
+                                                        }
+
+                                                    }
+                                                }
+                                            } catch (UserInterruptException e) {
+                                                terminal.writer()
+                                                        .println(SetColour.set("Exited file deletion", 243, 139, 168));
+                                                terminal.writer().flush();
+                                                Thread.sleep(500);
+
+                                            }
+                                        }
+                                    }
+                                }
                                 break;
                             case EXIT:
                                 System.exit(0);
@@ -285,7 +370,6 @@ public class TerminalHandler {
 
     }
 
-
     public void updateFilesAndDirs() {
         dirList = curDir.listFiles(new FilenameFilter() {
             public boolean accept(File current, String name) {
@@ -329,4 +413,21 @@ public class TerminalHandler {
 
         return allFiles;
     }
+
+    public void deleteDir(File file, File fileName, Terminal terminal) throws InterruptedException {
+        File[] contents = file.listFiles();
+        if (contents != null) {
+            for (File f : contents) {
+                deleteDir(f, fileName, terminal);
+            }
+        }
+        if (file.delete()) {
+            terminal.writer()
+                    .println(SetColour.set("Deleted file: '" + file.getAbsolutePath() + "'", 243, 139, 168));
+            terminal.writer().flush();
+            Thread.sleep(500);
+        }
+        updateFilesAndDirs();
+    }
+
 }
