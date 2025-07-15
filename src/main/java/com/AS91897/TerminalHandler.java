@@ -234,14 +234,21 @@ public class TerminalHandler {
                                         File selectedFile = fileAndDirList[selectedIndex];
                                         if (selectedFile != null) {
                                             try {
+                                                
                                                 String fileIn = lineReader.readLine(
                                                         SetColour.set(
                                                                 "Press CRTL+C to quit, Press enter to confirm\nEnter what you want to rename the file/folder to (Current name: "
-                                                                        + selectedFile.getName() + "):",
+                                                                        + selectedFile.getAbsolutePath() + "):",
                                                                 203, 166, 247))
                                                         .strip();
+                                                String[] path = selectedFile.getAbsolutePath().split("/");
+                                                path[path.length-1]  = fileIn;
+                                                String joinedPath = String.join(",", path);
+                                                joinedPath = joinedPath.replaceAll(",", "/");
+
+
                                                 if (fileIn != "") {
-                                                    selectedFile.renameTo(new File(fileIn));
+                                                    selectedFile.renameTo(new File(joinedPath));
                                                     updateFilesAndDirs();
 
                                                 }
@@ -347,11 +354,7 @@ public class TerminalHandler {
 
                                 while (sleeping.get()) {
                                     synchronized (sleeper) {
-                                        try {
                                             sleeper.wait();
-                                        } catch (InterruptedException e) {
-                                            e.printStackTrace(); // for degug dont forgor to remove to not spam errors
-                                        }
                                     }
                                 }
 
