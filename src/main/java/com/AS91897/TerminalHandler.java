@@ -274,7 +274,7 @@ public class TerminalHandler {
                                                             .strip().toLowerCase();
                                                     if (deleteConfirm.equals("y")
                                                             || deleteConfirm.equals("yes")) {
-                                                        deleteDir(selectedFile, selectedFile, terminal);
+                                                        deleteDir(selectedFile, terminal);
                                                     }
 
                                                 } else {
@@ -414,11 +414,11 @@ public class TerminalHandler {
         return allFiles;
     }
 
-    public void deleteDir(File file, File fileName, Terminal terminal) throws InterruptedException {
+    public void deleteDir(File file, Terminal terminal) throws InterruptedException {
         File[] contents = file.listFiles();
         if (contents != null) {
             for (File f : contents) {
-                deleteDir(f, fileName, terminal);
+                deleteDir(f, terminal);
             }
         }
         if (file.delete()) {
