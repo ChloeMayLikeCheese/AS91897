@@ -5,6 +5,8 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import sun.misc.Signal;
@@ -22,10 +24,10 @@ import org.jline.utils.InfoCmp.Capability;
 public class TerminalHandler {
     Size terminalSize;
     File curDir;
-
     File[] dirList;
     File[] fileList;
     File[] fileAndDirList;
+    Map<File, Integer> selectionHistory = new HashMap<>();
 
     enum Operation {
         UP,
@@ -46,7 +48,7 @@ public class TerminalHandler {
         updateFilesAndDirs();
 
         while (true) {
-            int selectedIndex = 0;
+            int selectedIndex = selectionHistory.getOrDefault(curDir, 0);
             int previousSelectedIndex = 0;
             int viewOffset = 0;
 
@@ -153,37 +155,31 @@ public class TerminalHandler {
                             case LEFT:
                                 File parentDir = curDir.getParentFile();
                                 if (parentDir != null) {
-                                    curDir = curDir.getParentFile();
+                                    selectionHistory.put(curDir, selectedIndex);
+                                    curDir = parentDir;
                                     updateFilesAndDirs();
-                                    selectedIndex = 0;
-                                    // previousSelectedIndex = selectedIndex;
-                                    // selectedIndex = previousSelectedIndex;
-
-
+                                    selectedIndex = selectionHistory.getOrDefault(curDir, 0);
                                 }
 
                                 break;
                             case RIGHT:
                             case ENTER:
-                            if (fileAndDirList != null) {
-                                if (fileAndDirList.length != 0) {
-                                    if (fileAndDirList[selectedIndex] != null) {
-                                        File selectedFile = fileAndDirList[selectedIndex];
-                                        if (selectedFile != null) {
-                                            if (selectedFile.isDirectory()) {
-                                                curDir = selectedFile;
-                                                updateFilesAndDirs();
-                                                selectedIndex = 0;
-                                                // previousSelectedIndex = selectedIndex;
-                                                // selectedIndex = previousSelectedIndex;
-                                                
+                                if (fileAndDirList != null) {
+                                    if (fileAndDirList.length != 0) {
+                                        if (fileAndDirList[selectedIndex] != null) {
+                                            File selectedFile = fileAndDirList[selectedIndex];
+                                            if (selectedFile != null) {
+                                                if (selectedFile.isDirectory()) {
+                                                    selectionHistory.put(curDir, selectedIndex);
+                                                    curDir = selectedFile;
+                                                    updateFilesAndDirs();
+                                                    selectedIndex = selectionHistory.getOrDefault(curDir, 0);
+                                                }
                                             }
-                                        }
 
+                                        }
                                     }
                                 }
-                            }
-
 
                                 break;
                             case CREATE:
@@ -252,9 +248,23 @@ public class TerminalHandler {
                                                 String joinedPath = String.join(",", path);
                                                 joinedPath = joinedPath.replaceAll(",", "/");
 
+                                                File targetFile = new File(joinedPath);
                                                 if (fileIn != "") {
-                                                    selectedFile.renameTo(new File(joinedPath));
-                                                    updateFilesAndDirs();
+                                                    if (targetFile.exists()) {
+                                                        terminal.writer()
+                                                                .println(SetColour.set(
+                                                                        "Failed to rename: '"
+                                                                                + selectedFile.getAbsoluteFile()
+                                                                                + "'' File already exsists",
+                                                                        243, 139, 168));
+                                                        terminal.writer().flush();
+                                                        Thread.sleep(500);
+
+                                                    } else {
+                                                        selectedFile.renameTo(new File(joinedPath));
+                                                        updateFilesAndDirs();
+
+                                                    }
 
                                                 }
 
@@ -338,7 +348,7 @@ public class TerminalHandler {
                                 Object sleeper = new Object();
                                 terminal.puts(Capability.clear_screen);
                                 terminal.writer().println(SetColour.set(
-                                        "Help:\n Press c to create a file\n Press h for help\n Press left or right arrows to navigate to the previous or next directory\n Press up or down to navigate up or down the folder list\n Press Crtl+C to exit menus like this or q to exit the program",
+                                        "Help:\n Press c to create a file, put a '/' at the end of the name to make it a directory\n Press h for help\n Press left or right arrows to navigate to the previous or next directory\n Press up or down to navigate up or down the folder list\n Press Backspace or d to delete a file or folder\n Press Crtl+C to exit menus like this or q to exit the program",
                                         203, 166, 247));
                                 terminal.writer().flush();
 
@@ -384,34 +394,34 @@ public class TerminalHandler {
                 return new File(current, name).isDirectory();
             }
         });
-        if (dirList == null) dirList = new File[0];
+        if (dirList == null)
+            dirList = new File[0];
 
         fileList = curDir.listFiles(new FilenameFilter() {
             public boolean accept(File current, String name) {
                 return new File(current, name).isFile();
             }
         });
-        if (fileList == null) dirList = new File[0];
+        if (fileList == null)
+            dirList = new File[0];
 
-            ArrayList<String> dirSorter = new ArrayList<String>();
-            for (int i = 0; i < dirList.length; i++) {
-                dirSorter.add(dirList[i].toString());
-            }
-            dirSorter.sort(null);
-            for (int i = 0; i < dirList.length; i++) {
-                dirList[i] = new File(dirSorter.get(i));
-            }
+        ArrayList<String> dirSorter = new ArrayList<String>();
+        for (int i = 0; i < dirList.length; i++) {
+            dirSorter.add(dirList[i].toString());
+        }
+        dirSorter.sort(null);
+        for (int i = 0; i < dirList.length; i++) {
+            dirList[i] = new File(dirSorter.get(i));
+        }
 
-            ArrayList<String> fileSorter = new ArrayList<String>();
-            for (int i = 0; i < fileList.length; i++) {
-                fileSorter.add(fileList[i].toString());
-            }
-            fileSorter.sort(null);
-            for (int i = 0; i < fileList.length; i++) {
-                fileList[i] = new File(fileSorter.get(i));
-            }
-
-
+        ArrayList<String> fileSorter = new ArrayList<String>();
+        for (int i = 0; i < fileList.length; i++) {
+            fileSorter.add(fileList[i].toString());
+        }
+        fileSorter.sort(null);
+        for (int i = 0; i < fileList.length; i++) {
+            fileList[i] = new File(fileSorter.get(i));
+        }
 
         fileAndDirList = new File[dirList.length + fileList.length];
         for (int i = 0; i < dirList.length; i++) {
