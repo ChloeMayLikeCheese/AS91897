@@ -348,7 +348,7 @@ public class TerminalHandler {
                                 Object sleeper = new Object();
                                 terminal.puts(Capability.clear_screen);
                                 terminal.writer().println(SetColour.set(
-                                        "Help:\n Press c to create a file, put a '/' at the end of the name to make it a directory\n Press h for help\n Press left or right arrows to navigate to the previous or next directory\n Press up or down to navigate up or down the folder list\n Press Backspace or d to delete a file or folder\n Press Crtl+C to exit menus like this or q to exit the program",
+                                        "Help:\n Press c to create a file, put a / at the end of the name to make it a directory\n Press h for help\n Press r to rename a file or folder\n Press left or right arrows to navigate to the previous or next directory\n Press up or down to navigate up or down the folder list\n Press Backspace or d to delete a file or folder\n Press Crtl+C to exit menus like this or q to exit the program",
                                         203, 166, 247));
                                 terminal.writer().flush();
 
