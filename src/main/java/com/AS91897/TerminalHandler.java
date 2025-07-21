@@ -38,8 +38,10 @@ public class TerminalHandler {
         CREATE,
         RENAME,
         DELETE,
+        SEARCH,
         EXIT,
-        HELP
+        HELP,
+        REFRESH
     }
 
     public TerminalHandler() throws IOException, InterruptedException {
@@ -49,7 +51,6 @@ public class TerminalHandler {
 
         while (true) {
             int selectedIndex = selectionHistory.getOrDefault(curDir, 0);
-            int previousSelectedIndex = 0;
             int viewOffset = 0;
 
             try (Terminal terminal = TerminalBuilder.builder()
@@ -67,21 +68,21 @@ public class TerminalHandler {
                 keyMap.bind(Operation.ENTER, "\r", "\n");
                 keyMap.bind(Operation.CREATE, "c");
                 keyMap.bind(Operation.RENAME, "r");
+                keyMap.bind(Operation.DELETE, "d", "\u007f");
                 keyMap.bind(Operation.EXIT, "q");
                 keyMap.bind(Operation.HELP, "h");
-                keyMap.bind(Operation.DELETE, "d", "\u007f");
-                keyMap.setAmbiguousTimeout(50);
+                keyMap.bind(Operation.SEARCH, "s");
+                keyMap.bind(Operation.REFRESH,"f");
                 LineReader lineReader = LineReaderBuilder.builder()
                         .terminal(terminal)
                         .build();
 
                 boolean isReading = true;
                 while (isReading) {
-                    // int terminalWidth = terminal.getWidth();
                     int terminalHeight = terminal.getHeight();
-                    // terminalSize = terminal.getSize();
 
                     terminal.puts(Capability.clear_screen);
+                    
 
                     int listHeight = terminalHeight - 3;
                     if (listHeight < 1) {
@@ -255,7 +256,7 @@ public class TerminalHandler {
                                                                 .println(SetColour.set(
                                                                         "Failed to rename: '"
                                                                                 + selectedFile.getAbsoluteFile()
-                                                                                + "'' File already exsists",
+                                                                                + "' File already exsists",
                                                                         243, 139, 168));
                                                         terminal.writer().flush();
                                                         Thread.sleep(500);
@@ -339,19 +340,36 @@ public class TerminalHandler {
                                     }
                                 }
                                 break;
+                            case SEARCH:
+                                boolean searching = true;
+                                while (searching) {
+                                    File search;
+                                    String searchIn = lineReader.readLine(
+                                            SetColour.set(
+                                                    "Enter file name to search: ",
+                                                    203, 166, 247))
+                                            .strip();
+                                    search = new File(curDir.getAbsolutePath() +"/"+searchIn);
+                                    updateFilesAndDirs();
+                                    fileAndDirList = curDir.listFiles(new FilenameFilter() {
+                                        public boolean accept(File current, String name) {
+                                            return new File(current, name).equals(search);
+                                        }
+                                    });
+                                    searching = false;
+                                }
+                                break;
                             case EXIT:
                                 System.exit(0);
                                 break;
                             case HELP:
-
-                                AtomicBoolean sleeping = new AtomicBoolean(true);
-                                Object sleeper = new Object();
                                 terminal.puts(Capability.clear_screen);
                                 terminal.writer().println(SetColour.set(
                                         "Help:\n Press c to create a file, put a / at the end of the name to make it a directory\n Press h for help\n Press r to rename a file or folder\n Press left or right arrows to navigate to the previous or next directory\n Press up or down to navigate up or down the folder list\n Press Backspace or d to delete a file or folder\n Press Crtl+C to exit menus like this or q to exit the program",
                                         203, 166, 247));
                                 terminal.writer().flush();
-
+                                AtomicBoolean sleeping = new AtomicBoolean(true);
+                                Object sleeper = new Object();
                                 Signal sig = new Signal("INT");
                                 sun.misc.SignalHandler oldHandler = Signal.handle(sig, signal -> {
                                     sleeping.set(false);
@@ -376,6 +394,9 @@ public class TerminalHandler {
                                 Signal.handle(sig, oldHandler);
 
                                 break;
+                            case REFRESH:
+                                updateFilesAndDirs();
+                            break;
                             default:
                                 break;
                         }
