@@ -72,7 +72,7 @@ public class TerminalHandler {
                 keyMap.bind(Operation.EXIT, "q");
                 keyMap.bind(Operation.HELP, "h");
                 keyMap.bind(Operation.SEARCH, "s");
-                keyMap.bind(Operation.REFRESH,"f");
+                keyMap.bind(Operation.REFRESH, "f");
                 LineReader lineReader = LineReaderBuilder.builder()
                         .terminal(terminal)
                         .build();
@@ -82,7 +82,6 @@ public class TerminalHandler {
                     int terminalHeight = terminal.getHeight();
 
                     terminal.puts(Capability.clear_screen);
-                    
 
                     int listHeight = terminalHeight - 3;
                     if (listHeight < 1) {
@@ -343,19 +342,7 @@ public class TerminalHandler {
                             case SEARCH:
                                 boolean searching = true;
                                 while (searching) {
-                                    File search;
-                                    String searchIn = lineReader.readLine(
-                                            SetColour.set(
-                                                    "Enter file name to search: ",
-                                                    203, 166, 247))
-                                            .strip();
-                                    search = new File(curDir.getAbsolutePath() +"/"+searchIn);
-                                    updateFilesAndDirs();
-                                    fileAndDirList = curDir.listFiles(new FilenameFilter() {
-                                        public boolean accept(File current, String name) {
-                                            return new File(current, name).equals(search);
-                                        }
-                                    });
+                                    search(lineReader, terminal);
                                     searching = false;
                                 }
                                 break;
@@ -396,7 +383,7 @@ public class TerminalHandler {
                                 break;
                             case REFRESH:
                                 updateFilesAndDirs();
-                            break;
+                                break;
                             default:
                                 break;
                         }
@@ -489,6 +476,77 @@ public class TerminalHandler {
             Thread.sleep(500);
         }
         updateFilesAndDirs();
+    }
+
+    public void search(LineReader lineReader, Terminal terminal) {
+
+        String searchIn = lineReader.readLine(
+                SetColour.set(
+                        "Enter file name to search: ",
+                        203, 166, 247))
+                .strip();
+        updateFilesAndDirs();
+
+        dirList = curDir.listFiles(new FilenameFilter() {
+            public boolean accept(File current, String name) {
+                if (!name.contains(searchIn)) {
+                    name = null;
+                }
+                if (name != null) {
+                    return new File(current,name).isDirectory();
+                }else{
+                    return false;
+                }
+                
+
+            }
+        });
+
+        fileList = curDir.listFiles(new FilenameFilter() {
+            public boolean accept(File current, String name) {
+                if (!name.contains(searchIn)) {
+                    name = null;
+                }
+                if (name != null) {
+                    return new File(current,name).isFile();
+                }else{
+                    return false;
+                }
+
+
+            }
+        });
+
+        if (dirList == null)
+            dirList = new File[0];
+        if (fileList == null)
+            dirList = new File[0];
+
+        ArrayList<String> dirSorter = new ArrayList<String>();
+        for (int i = 0; i < dirList.length; i++) {
+            dirSorter.add(dirList[i].toString());
+        }
+        dirSorter.sort(null);
+        for (int i = 0; i < dirList.length; i++) {
+            dirList[i] = new File(dirSorter.get(i));
+        }
+
+        ArrayList<String> fileSorter = new ArrayList<String>();
+        for (int i = 0; i < fileList.length; i++) {
+            fileSorter.add(fileList[i].toString());
+        }
+        fileSorter.sort(null);
+        for (int i = 0; i < fileList.length; i++) {
+            fileList[i] = new File(fileSorter.get(i));
+        }
+
+        fileAndDirList = new File[dirList.length + fileList.length];
+        for (int i = 0; i < dirList.length; i++) {
+            fileAndDirList[i] = dirList[i];
+        }
+        for (int i = 0; i < fileList.length; i++) {
+            fileAndDirList[dirList.length + i] = fileList[i];
+        }
     }
 
 }
