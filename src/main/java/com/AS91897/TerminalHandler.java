@@ -28,6 +28,7 @@ public class TerminalHandler {
     File[] fileList;
     File[] fileAndDirList;
     Map<File, Integer> selectionHistory = new HashMap<>();
+    int selectedIndex;
 
     enum Operation {
         UP,
@@ -50,7 +51,7 @@ public class TerminalHandler {
         updateFilesAndDirs();
 
         while (true) {
-            int selectedIndex = selectionHistory.getOrDefault(curDir, 0);
+            selectedIndex = selectionHistory.getOrDefault(curDir, 0);
             int viewOffset = 0;
 
             try (Terminal terminal = TerminalBuilder.builder()
@@ -223,11 +224,7 @@ public class TerminalHandler {
                                     }
 
                                 } catch (UserInterruptException e) {
-                                    terminal.writer()
-                                            .println(SetColour.set("Exited file creation", 243, 139, 168));
-                                    terminal.writer().flush();
-                                    Thread.sleep(500);
-                                    //printError(terminal, "Exited file creation");
+                                    printError(terminal, "Exited file creation");
 
                                 } catch (IOException e) {
                                     // Do nothing
@@ -255,14 +252,7 @@ public class TerminalHandler {
                                                 File targetFile = new File(joinedPath);
                                                 if (fileIn != "") {
                                                     if (targetFile.exists()) {
-                                                        terminal.writer()
-                                                                .println(SetColour.set(
-                                                                        "Failed to rename: '"
-                                                                                + selectedFile.getAbsoluteFile()
-                                                                                + "' File already exsists",
-                                                                        243, 139, 168));
-                                                        terminal.writer().flush();
-                                                        Thread.sleep(500);
+                                                        printError(terminal, "Failed to rename: '" + selectedFile.getAbsoluteFile() + "' File already exsists");
 
                                                     } else {
                                                         selectedFile.renameTo(new File(joinedPath));
@@ -273,10 +263,7 @@ public class TerminalHandler {
                                                 }
 
                                             } catch (UserInterruptException e) {
-                                                terminal.writer()
-                                                        .println(SetColour.set("Exited file rename", 243, 139, 168));
-                                                terminal.writer().flush();
-                                                Thread.sleep(500);
+                                                printError(terminal,"Exited file rename");
 
                                             }
                                         }
@@ -313,30 +300,15 @@ public class TerminalHandler {
                                                     if (deleteConfirm.equals("y") || deleteConfirm.equals("yes")) {
                                                         if (selectedFile.delete()) {
                                                             updateFilesAndDirs();
-                                                            terminal.writer()
-                                                                    .println(SetColour.set(
-                                                                            selectedFile.getAbsoluteFile()
-                                                                                    + " deleted succsessfully",
-                                                                            243, 139, 168));
-                                                            terminal.writer().flush();
-                                                            Thread.sleep(500);
+                                                            printError(terminal, selectedFile.getAbsoluteFile() + " deleted succsessfully");
                                                         } else {
-                                                            terminal.writer()
-                                                                    .println(SetColour.set(
-                                                                            "Failed to delete: "
-                                                                                    + selectedFile.getAbsoluteFile(),
-                                                                            243, 139, 168));
-                                                            terminal.writer().flush();
-                                                            Thread.sleep(500);
+                                                            printError(terminal, "Failed to delete: " + selectedFile.getAbsoluteFile());
                                                         }
 
                                                     }
                                                 }
                                             } catch (UserInterruptException e) {
-                                                terminal.writer()
-                                                        .println(SetColour.set("Exited file deletion", 243, 139, 168));
-                                                terminal.writer().flush();
-                                                Thread.sleep(500);
+                                                printError(terminal,"Exited file deletion" );
 
                                             }
                                         }
@@ -364,12 +336,9 @@ public class TerminalHandler {
                                 Signal sig = new Signal("INT");
                                 sun.misc.SignalHandler oldHandler = Signal.handle(sig, signal -> {
                                     sleeping.set(false);
-                                    terminal.writer().println(SetColour.set("Exited help menu", 243, 139, 168));
-                                    terminal.writer().flush();
                                     try {
-                                        Thread.sleep(500);
+                                        printError(terminal, "Exited help menu");
                                     } catch (InterruptedException e) {
-
                                     }
                                     synchronized (sleeper) {
                                         sleeper.notify();
@@ -475,16 +444,13 @@ public class TerminalHandler {
             }
         }
         if (file.delete()) {
-            terminal.writer()
-                    .println(SetColour.set("Deleted file: '" + file.getAbsolutePath() + "'", 243, 139, 168));
-            terminal.writer().flush();
-            Thread.sleep(500);
+            printError(terminal, "Deleted file: '" + file.getAbsolutePath() + "'");
         }
         updateFilesAndDirs();
     }
 
     public void search(LineReader lineReader, Terminal terminal) {
-
+        selectedIndex = 0;
         String searchIn = lineReader.readLine(
                 SetColour.set(
                         "Enter file name to search: ",
@@ -557,6 +523,12 @@ public class TerminalHandler {
                 .println(SetColour.set(message, 243, 139, 168));
         terminal.writer().flush();
         Thread.sleep(500);
+    }
+
+    public String inputReader(Terminal terminal, LineReader lineReader){
+        
+        return null;
+
     }
 
 }
