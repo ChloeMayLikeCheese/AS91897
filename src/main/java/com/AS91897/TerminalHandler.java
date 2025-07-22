@@ -164,17 +164,20 @@ public class TerminalHandler {
                                 break;
                             case RIGHT:
                             case ENTER:
+
                                 if (fileAndDirList != null) {
                                     if (fileAndDirList.length != 0) {
-                                        if (fileAndDirList[selectedIndex] != null) {
-                                            File selectedFile = fileAndDirList[selectedIndex];
-                                            if (selectedFile != null) {
+                                        File selectedFile = fileAndDirList[selectedIndex];
+                                        if (selectedFile != null) {
+                                            if (selectedFile.canRead()) {
                                                 if (selectedFile.isDirectory()) {
                                                     selectionHistory.put(curDir, selectedIndex);
                                                     curDir = selectedFile;
                                                     updateFilesAndDirs();
                                                     selectedIndex = selectionHistory.getOrDefault(curDir, 0);
                                                 }
+                                            } else {
+
                                             }
 
                                         }
@@ -224,6 +227,7 @@ public class TerminalHandler {
                                             .println(SetColour.set("Exited file creation", 243, 139, 168));
                                     terminal.writer().flush();
                                     Thread.sleep(500);
+                                    //printError(terminal, "Exited file creation");
 
                                 } catch (IOException e) {
                                     // Do nothing
@@ -397,6 +401,7 @@ public class TerminalHandler {
     }
 
     public void updateFilesAndDirs() {
+
         dirList = curDir.listFiles(new FilenameFilter() {
             public boolean accept(File current, String name) {
                 return new File(current, name).isDirectory();
@@ -493,11 +498,10 @@ public class TerminalHandler {
                     name = null;
                 }
                 if (name != null) {
-                    return new File(current,name).isDirectory();
-                }else{
+                    return new File(current, name).isDirectory();
+                } else {
                     return false;
                 }
-                
 
             }
         });
@@ -508,11 +512,10 @@ public class TerminalHandler {
                     name = null;
                 }
                 if (name != null) {
-                    return new File(current,name).isFile();
-                }else{
+                    return new File(current, name).isFile();
+                } else {
                     return false;
                 }
-
 
             }
         });
@@ -547,6 +550,13 @@ public class TerminalHandler {
         for (int i = 0; i < fileList.length; i++) {
             fileAndDirList[dirList.length + i] = fileList[i];
         }
+    }
+
+    public void printError(Terminal terminal, String message) throws InterruptedException {
+        terminal.writer()
+                .println(SetColour.set(message, 243, 139, 168));
+        terminal.writer().flush();
+        Thread.sleep(500);
     }
 
 }
