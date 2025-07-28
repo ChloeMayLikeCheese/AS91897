@@ -228,7 +228,7 @@ public class TerminalHandler {
                                                             + selectedFile.getAbsolutePath() + "): ",
                                                     "Exited file rename");
                                             if (fileIn != null) {
-                                                String[] path = selectedFile.getAbsolutePath().split("/");
+                                                String[] path = selectedFile.getAbsolutePath().split(File.separator);
                                                 path[path.length - 1] = fileIn;
                                                 String joinedPath = String.join(",", path);
                                                 joinedPath = joinedPath.replaceAll(",", "/");
@@ -401,7 +401,7 @@ public class TerminalHandler {
 
         if (curDir.getParentFile() != null) {
             allFiles = curDir.getAbsolutePath();
-            String[] allFilesArray = allFiles.split("/");
+            String[] allFilesArray = allFiles.split(File.separator);
             allFilesArray[allFilesArray.length - 1] = SetColour
                     .setBG(SetColour.set(allFilesArray[allFilesArray.length - 1], 49, 50, 68), 186, 192, 222);
             for (int i = 0; i < allFilesArray.length - 1; i++) {
