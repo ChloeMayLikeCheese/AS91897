@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Pattern;
 
 import sun.misc.Signal;
 
@@ -57,15 +58,16 @@ public class TerminalHandler {
             try (Terminal terminal = TerminalBuilder.builder()
                     .name("File Manager")
                     .jna(true)
+                    .jansi(true)
                     .build()) {
                 terminal.enterRawMode();
 
                 BindingReader bindingReader = new BindingReader(terminal.reader());
                 KeyMap<Operation> keyMap = new KeyMap<>();
-                keyMap.bind(Operation.UP, "\033[A");
-                keyMap.bind(Operation.DOWN, "\033[B");
-                keyMap.bind(Operation.LEFT, "\033[D");
-                keyMap.bind(Operation.RIGHT, "\033[C");
+                keyMap.bind(Operation.UP, "\033[A","1");
+                keyMap.bind(Operation.DOWN, "\033[B","2");
+                keyMap.bind(Operation.LEFT, "\033[D","3");
+                keyMap.bind(Operation.RIGHT, "\033[C","4");
                 keyMap.bind(Operation.ENTER, "\r", "\n");
                 keyMap.bind(Operation.CREATE, "c");
                 keyMap.bind(Operation.RENAME, "r");
@@ -401,7 +403,7 @@ public class TerminalHandler {
 
         if (curDir.getParentFile() != null) {
             allFiles = curDir.getAbsolutePath();
-            String[] allFilesArray = allFiles.split(File.separator);
+            String[] allFilesArray = allFiles.split(Pattern.quote(File.separator));
             allFilesArray[allFilesArray.length - 1] = SetColour
                     .setBG(SetColour.set(allFilesArray[allFilesArray.length - 1], 49, 50, 68), 186, 192, 222);
             for (int i = 0; i < allFilesArray.length - 1; i++) {
