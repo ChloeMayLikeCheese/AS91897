@@ -61,10 +61,10 @@ public final class TerminalHandler {
 
                 BindingReader bindingReader = new BindingReader(terminal.reader());
                 KeyMap<Operation> keyMap = new KeyMap<>();
-                keyMap.bind(Operation.UP, "\033[A", "1");
-                keyMap.bind(Operation.DOWN, "\033[B", "2");
-                keyMap.bind(Operation.LEFT, "\033[D", "3");
-                keyMap.bind(Operation.RIGHT, "\033[C", "4");
+                keyMap.bind(Operation.UP, "\033[A", "i");
+                keyMap.bind(Operation.DOWN, "\033[B", "k");
+                keyMap.bind(Operation.LEFT, "\033[D", "j");
+                keyMap.bind(Operation.RIGHT, "\033[C", "l");
                 keyMap.bind(Operation.ENTER, "\r", "\n");
                 keyMap.bind(Operation.CREATE, "c");
                 keyMap.bind(Operation.RENAME, "r");
