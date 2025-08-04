@@ -6,7 +6,7 @@ Just run the jar from the last release and run it with
 ```bash
 java -jar AS91897-all.jar
 ```
-Controls:
+Controls:   
 Create file = 'c' (Put a / at the end to make it a directory)   
 Help: = 'h'   
 Rename = 'r'   
@@ -18,5 +18,6 @@ Delete = Backspace or 'd' on windows
 Search = 's'   
 Refresh = 'f'   
 Press Crtl+C to exit file creation, renaming and deletion or 'q' to quit the program or help menu   
+
 
 
