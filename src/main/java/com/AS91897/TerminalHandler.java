@@ -6,10 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Pattern;
-
-import sun.misc.Signal;
 
 import org.jline.keymap.BindingReader;
 import org.jline.keymap.KeyMap;
@@ -129,7 +126,7 @@ public final class TerminalHandler {
 
                     if (!hasPrintedWelcome) {
                         terminal.writer().println(SetColour.set(
-                                "Welcome! Press arrow up/down/left/right to navigate, h for help , or 'q' to quit.",
+                                "Welcome! Press 'h' for help , or 'q' to quit.",
                                 203, 166, 247));
                         hasPrintedWelcome = true;
                     }
@@ -299,34 +296,19 @@ public final class TerminalHandler {
                             case HELP -> {
                                 terminal.puts(Capability.clear_screen);
                                 terminal.writer().println(SetColour.set(
-                                        "Help:\n Create file = 'c' (Put a / at the end to make it a directory)\n Help: = 'h'\n Rename = 'r'\n Previous directory = Left arrow or 'j' on windows\n Enter selected directory = Right arrow or 'l' on windows\n Navigate up directory list = Up arrow or 'i'\n Navigate down directory list = Down arrow or 'k' on windows \n Delete = Backspace or 'd' on windows\n Search = 's'\n Refresh = 'f'\nPress Crtl+C to exit menus like this or q to exit the program",
+                                        "Help:\n Create file = 'c' (Put a / at the end to make it a directory)\n Help: = 'h'\n Rename = 'r'\n Previous directory = Left arrow or 'j' on windows\n Enter selected directory = Right arrow or 'l' on windows\n Navigate up directory list = Up arrow or 'i'\n Navigate down directory list = Down arrow or 'k' on windows \n Delete = Backspace or 'd' on windows\n Search = 's'\n Refresh = 'f'\nPress Crtl+C to exit file creation, renaming and deletion or 'q' to quit the program or help menu",
                                         203, 166, 247));
                                 terminal.writer().flush();
-                                AtomicBoolean sleeping = new AtomicBoolean(true);
-                                Object sleeper = new Object();
-                                Signal sig = new Signal("INT");
-                                sun.misc.SignalHandler oldHandler = Signal.handle(sig, signal -> {
-                                    sleeping.set(false);
-                                    try {
-                                        printError(terminal, "Exited help menu");
-                                    } catch (InterruptedException e) {
+                                Operation exitHelp = bindingReader.readBinding(keyMap, null, true);
+                                switch (exitHelp) {
+                                    case EXIT -> {
+                                        updateFilesAndDirs();
                                     }
-                                    synchronized (sleeper) {
-                                        sleeper.notify();
-                                    }
-                                });
-
-                                while (sleeping.get()) {
-                                    synchronized (sleeper) {
-                                        sleeper.wait();
+                                    default -> {
                                     }
                                 }
-
-                                Signal.handle(sig, oldHandler);
                             }
                             case REFRESH -> updateFilesAndDirs();
-                            default -> {
-                            }
                         }
                     }
 
