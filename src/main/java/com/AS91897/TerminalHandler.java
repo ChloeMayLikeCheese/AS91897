@@ -299,7 +299,7 @@ public final class TerminalHandler {
                             case HELP -> {
                                 terminal.puts(Capability.clear_screen);
                                 terminal.writer().println(SetColour.set(
-                                        "Help:\n Press c to create a file, put a / at the end of the name to make it a directory\n Press h for help\n Press r to rename a file or folder\n Press left or right arrows to navigate to the previous or next directory\n Press up or down to navigate up or down the folder list\n Press Backspace or d to delete a file or folder\n Press s to search and f to refresh folder list\nPress Crtl+C to exit menus like this or q to exit the program",
+                                        "Help:\n Create file = 'c' (Put a / at the end to make it a directory)\n Help: = 'h'\n Rename = 'r'\n Previous directory = Left arrow or 'j' on windows\n Enter selected directory = Right arrow or 'l' on windows\n Navigate up directory list = Up arrow or 'i'\n Navigate down directory list = Down arrow or 'k' on windows \n Delete = Backspace or 'd' on windows\n Search = 's'\n Refresh = 'f'\nPress Crtl+C to exit menus like this or q to exit the program",
                                         203, 166, 247));
                                 terminal.writer().flush();
                                 AtomicBoolean sleeping = new AtomicBoolean(true);
