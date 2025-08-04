@@ -61,10 +61,10 @@ public final class TerminalHandler {
 
                 BindingReader bindingReader = new BindingReader(terminal.reader());
                 KeyMap<Operation> keyMap = new KeyMap<>();
-                keyMap.bind(Operation.UP, "\033[A","1");
-                keyMap.bind(Operation.DOWN, "\033[B","2");
-                keyMap.bind(Operation.LEFT, "\033[D","3");
-                keyMap.bind(Operation.RIGHT, "\033[C","4");
+                keyMap.bind(Operation.UP, "\033[A", "1");
+                keyMap.bind(Operation.DOWN, "\033[B", "2");
+                keyMap.bind(Operation.LEFT, "\033[D", "3");
+                keyMap.bind(Operation.RIGHT, "\033[C", "4");
                 keyMap.bind(Operation.ENTER, "\r", "\n");
                 keyMap.bind(Operation.CREATE, "c");
                 keyMap.bind(Operation.RENAME, "r");
@@ -348,7 +348,7 @@ public final class TerminalHandler {
             dirList = new File[0];
 
         ArrayList<String> dirSorter = new ArrayList<>();
-        for (File dir: dirList) {
+        for (File dir : dirList) {
             dirSorter.add(dir.toString());
         }
         dirSorter.sort(null);
@@ -405,9 +405,11 @@ public final class TerminalHandler {
 
     public void search(LineReader lineReader, Terminal terminal) throws InterruptedException {
         selectedIndex = 0;
-        String searchIn = inputReader(terminal, lineReader, "Enter file name to search: ", "Exited search");
+        String searchIn = inputReader(terminal, lineReader, "Enter file name to search: ", "Exited search").replace("/",
+                "");
         updateFilesAndDirs();
         if (searchIn != null) {
+
             dirList = curDir.listFiles((File current, String name) -> {
                 if (!name.contains(searchIn)) {
                     name = null;
