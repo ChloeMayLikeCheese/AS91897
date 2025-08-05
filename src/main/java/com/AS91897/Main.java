@@ -85,6 +85,13 @@ public final class Main {
 
                     terminal.puts(Capability.clear_screen);
 
+                    if (!hasPrintedWelcome) {
+                        terminal.writer().println(SetColour.setBG(SetColour.set(
+                                "Welcome! Press 'h' for help , or 'q' to quit.",
+                                203, 166, 247), 186, 192, 222));
+                        hasPrintedWelcome = true;
+                    }
+
                     int listHeight = terminalHeight - 3;
                     if (listHeight < 1) {
                         listHeight = 1;
@@ -129,14 +136,12 @@ public final class Main {
                         }
                     }
 
-                    if (!hasPrintedWelcome) {
-                        terminal.writer().println(SetColour.set(
-                                "Welcome! Press 'h' for help , or 'q' to quit.",
-                                203, 166, 247));
-                        hasPrintedWelcome = true;
-                    }
-
                     terminal.writer().println(getAllFiles());
+                    terminal.writer()
+                            .println(SetColour.setBG(
+                                    SetColour.set(String.valueOf(selectedIndex + 1) + "/" + fileAndDirList.length, 203,
+                                            166, 247),
+                                    186, 192, 222));
                     terminal.writer().flush();
 
                     Operation op = bindingReader.readBinding(keyMap, null, false);
