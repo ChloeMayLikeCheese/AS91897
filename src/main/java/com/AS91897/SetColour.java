@@ -1,3 +1,8 @@
+/* 
+ * Author: Chloe T
+ * Date: 05/08/25
+ * Purpose of program: Set colour of printed text
+ */
 package com.AS91897;
 
 public class SetColour {
