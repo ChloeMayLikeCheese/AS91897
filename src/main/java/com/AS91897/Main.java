@@ -81,6 +81,7 @@ public final class Main {
 
                 boolean isReading = true;
                 while (isReading) {
+
                     int terminalHeight = terminal.getHeight();
 
                     terminal.puts(Capability.clear_screen);
@@ -88,7 +89,7 @@ public final class Main {
                     if (!hasPrintedWelcome) {
                         terminal.writer().println(SetColour.setBG(SetColour.set(
                                 "Welcome! Press 'h' for help , or 'q' to quit.",
-                                203, 166, 247), 186, 192, 222));
+                                49, 50, 68), 186, 192, 222));
                         hasPrintedWelcome = true;
                     }
 
@@ -139,8 +140,8 @@ public final class Main {
                     terminal.writer().println(getAllFiles());
                     terminal.writer()
                             .println(SetColour.setBG(
-                                    SetColour.set(String.valueOf(selectedIndex + 1) + "/" + fileAndDirList.length, 203,
-                                            166, 247),
+                                    SetColour.set(String.valueOf(selectedIndex + 1) + "/" + fileAndDirList.length, 49,
+                                            50, 68),
                                     186, 192, 222));
                     terminal.writer().flush();
 
@@ -310,13 +311,9 @@ public final class Main {
                                         203, 166, 247));
                                 terminal.writer().flush();
                                 Operation exitHelp = bindingReader.readBinding(keyMap, null, true);
-                                switch (exitHelp) {
-                                    case EXIT -> {
-                                        updateFilesAndDirs();
-                                    }
-                                    default -> {
-                                    }
-                                }
+                                if (exitHelp != null)
+                                    ;
+
                             }
                             case REFRESH -> updateFilesAndDirs();
                         }
@@ -451,7 +448,6 @@ public final class Main {
             System.arraycopy(dirList, 0, fileAndDirList, 0, dirList.length);
             System.arraycopy(fileList, 0, fileAndDirList, dirList.length, fileList.length);
         }
-
     }
 
     public static void printError(Terminal terminal, String message) throws InterruptedException {
@@ -468,7 +464,12 @@ public final class Main {
         } catch (UserInterruptException e) {
             printError(terminal, exitMessage);
         }
-        return in;
+        if(in != null){
+            return in;
+        }else{
+            return "";
+        }
+        
 
     }
 
